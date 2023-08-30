@@ -1,0 +1,729 @@
+<template>
+  <div id="EditOtr">
+    <div class="form-content">
+      <form
+        @submit.prevent="
+          submit(
+            added.id_colaborador,
+            added.titulo,
+            added.estatus,
+            added.renta,
+            added.tipo,
+            added.descripcion,
+            added.ubicacion,
+            added.precio,
+            added.superficie,
+            added.iframe,
+            added.detalles,
+            added.etiquetas,
+            added.act_precio,
+            added.leyenda
+          )
+        "
+      >
+        <div class="grup-form dflx">
+          <div class="boxform">
+            <label for="titulo" class="titulo">Título </label>
+            <input
+              v-model="added.titulo"
+              type="text"
+              id="titulo"
+              name="titulo"
+              class="wd-lrg"
+              required
+            />
+          </div>
+        </div>
+
+        <!--   <div class="grup-form dflx">
+        
+        <div class="boxform">
+          <label for="descripcion" class="descripcion">Descripción</label>
+          <textarea
+            v-model="added.descripcion"
+            class="format_ta"
+            id="descripcion"
+            name="descripcion"
+          />
+        </div>
+     
+        
+      </div> -->
+        <div class="grup-form dflx">
+          <div class="boxform">
+            <label for="colaborador" class="colaborador">Colaborador</label>
+            <input
+              v-model="added.colb_fullname"
+              type="text"
+              id="colaborador"
+              name="colaborador"
+              required
+              disabled
+            />
+
+            <div>
+              <div class="bdy_tbl">
+                <div v-for="(item, index) in colaboradores" :key="index">
+                  <p
+                    @click="
+                      (added.id_colaborador = item.id),
+                        (added.colb_fullname = item.name + ' ' + item.lastname)
+                    "
+                    :class="{ active_item: added.id_colaborador == item.id }"
+                  >
+                    {{ item.name }} {{ item.lastname }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <input
+              v-model="search_value"
+              type="text"
+              :placeholder="'Buscar'"
+              class="inp_buscar"
+            />
+          </div>
+          <div class="boxform">
+            <label for="colaborador" class="colaborador">Etiquetas</label>
+
+            <div>
+              <div class="bdy_tbl">
+                <div v-for="(item, index) in added.etiquetas" :key="index">
+                  <p @click="delEtiqueta(index)">{{ item }}</p>
+                </div>
+              </div>
+            </div>
+
+            <input
+              v-model="etiqueta"
+              type="text"
+              :placeholder="'etiqueta'"
+              class="inp_buscar"
+            />
+            <div class="box_rh">
+              <p
+                :class="{ active_option: etiqueta }"
+                @click="addEtiqueta(etiqueta)"
+                class="option_btn2"
+              >
+                Añadir
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grup-form dflx">
+          <div class="boxform">
+            <label>Activar precio</label>
+            <div class="options_btn">
+              <p
+                @click="added.act_precio = 'ACTIVO'"
+                class="option_btn"
+                :class="{ active_option: added.act_precio == 'ACTIVO' }"
+              >
+                ACTIVAR
+              </p>
+              <p
+                @click="added.act_precio = 'INACTIVO'"
+                class="option_btn"
+                :class="{ active_option: added.act_precio == 'INACTIVO' }"
+              >
+                DESACTIVAR
+              </p>
+            </div>
+          </div>
+          <div class="boxform" v-if="added.act_precio == 'ACTIVO'">
+            <label for="precio" class="precio">Precio </label>
+            <input
+              v-model="added.precio"
+              type="number"
+              id="precio"
+              name="precio"
+              min="0"
+              step="any"
+            />
+          </div>
+          <div class="boxform" v-if="added.act_precio == 'INACTIVO'">
+            <label for="ubicacion" class="ubicacion">Leyenda </label>
+            <input
+              v-model="added.leyenda"
+              type="text"
+              id="ubicacion"
+              name="ubicacion"
+            />
+          </div>
+        </div>
+
+        <div class="grup-form dflx">
+          <div class="boxform">
+            <label for="ubicacion" class="ubicacion">Ubicación </label>
+            <input
+              v-model="added.ubicacion"
+              type="text"
+              id="ubicacion"
+              name="ubicacion"
+            />
+          </div>
+          <div class="boxform">
+            <label for="superficie" class="superficie">Superficie </label>
+            <input
+              v-model="added.superficie"
+              type="text"
+              id="superficie"
+              name="superficie"
+            />
+          </div>
+        </div>
+        <!-- <div class="grup-form dflx">
+          <div class="boxform">
+            <label for="iframe" class="iframe">Mapa iframe (opcional) </label>
+            <input
+              v-model="iframe"
+              type="text"
+              id="iframe"
+              name="iframe"
+              class="wd-lrg"
+            />
+          </div>
+         
+          
+        </div> -->
+
+        <div class="grup-form dflx">
+          <div class="boxform">
+            <label>Estatus</label>
+            <div class="options_btn">
+              <p
+                @click="added.estatus = 'ACTIVO'"
+                class="option_btn"
+                :class="{ active_option: added.estatus == 'ACTIVO' }"
+              >
+                VISIBLE
+              </p>
+              <p
+                @click="added.estatus = 'INACTIVO'"
+                class="option_btn"
+                :class="{ active_option: added.estatus == 'INACTIVO' }"
+              >
+                OCULTO
+              </p>
+            </div>
+          </div>
+          <div class="boxform">
+            <label>Tipo</label>
+            <div class="options_btn">
+              <p
+                @click="added.tipo = 'venta'"
+                class="option_btn"
+                :class="{ active_option: added.tipo == 'venta' }"
+              >
+                VENTA
+              </p>
+              <p
+                @click="added.tipo = 'renta'"
+                class="option_btn"
+                :class="{ active_option: added.tipo == 'renta' }"
+              >
+                RENTA
+              </p>
+            </div>
+          </div>
+          <div class="boxform" v-if="added.tipo == 'venta'">
+            <label>Opción a rentar</label>
+            <div class="options_btn">
+              <p
+                @click="added.renta = 'si'"
+                class="option_btn"
+                :class="{ active_option: added.renta == 'si' }"
+              >
+                SI
+              </p>
+              <p
+                @click="added.renta = 'no'"
+                class="option_btn"
+                :class="{ active_option: added.renta == 'no' }"
+              >
+                NO
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-vue-editor">
+          <vue-editor
+            id="editor"
+            class="quill-editor"
+            :editorToolbar="toolbar()"
+            v-model="added.detalles"
+          >
+          </vue-editor>
+          <div class="box_rh">
+            <p @click="added.detalles = ''" class="option_btn2">Borrar</p>
+          </div>
+        </div>
+
+        <div class="dflx">
+          <p @click="wait()" class="btnRegresar">Regresar</p>
+          <button class="alta" type="submit">Editar</button>
+        </div>
+
+        <div v-if="status != ''" class="status_messages">
+          <div v-if="status == 'success'" class="msg msg_success">
+            <p>{{ message }}</p>
+          </div>
+          <div v-if="status == 'error'" class="msg msg_error">
+            <p>{{ message }}</p>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="seccion_div">
+      <p class="seccion_subtitle">Fotos</p>
+    </div>
+
+    <div class="boxform">
+      <label>Imagen/Video</label>
+      <div class="options_btn">
+        <p
+          @click="tipov = 'imagen'"
+          class="option_btn"
+          :class="{ active_option: tipov == 'imagen' }"
+        >
+          IMAGEN
+        </p>
+        <p
+          @click="tipov = 'video'"
+          class="option_btn"
+          :class="{ active_option: tipov == 'video' }"
+        >
+          VIDEO
+        </p>
+      </div>
+    </div>
+
+    <form
+      @submit.prevent="submitFiles(files, tipov, video_link)"
+      v-if="tipov == 'imagen'"
+    >
+      <div class="form-img">
+        <div class="grup-form dflx">
+          <div class="boxform">
+            <div class="dflx">
+              <label class="filelabel" for="uploadimg">
+                <span>Seleccionar Archivo</span></label
+              >
+            </div>
+
+            <input
+              @change="previewFiles"
+              type="file"
+              id="uploadimg"
+              name="uploadimg"
+              class="fileinput"
+              ref="myFiles"
+              multiple
+            />
+          </div>
+        </div>
+      </div>
+      <div class="grup-form dflx">
+        <div class="boxform">
+          <div class="bdy_tbl wd-md">
+            <div v-for="(img, key) in files" :key="key">
+              <p>{{ img.name }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="status != ''" class="status_messages">
+        <div v-if="status == 'success'" class="msg msg_success">
+          <p>{{ message }}</p>
+        </div>
+        <div v-if="status == 'error'" class="msg msg_error">
+          <p>{{ message }}</p>
+        </div>
+      </div>
+
+      <div class="dflx">
+        <button class="alta" type="submit">Añadir</button>
+      </div>
+    </form>
+    <form
+      @submit.prevent="submitFiles(files, tipov, video_link)"
+      v-if="tipov == 'video'"
+    >
+      <vue-editor
+        id="editor"
+        class="quill-editor"
+        :editorToolbar="toolbarvideo()"
+        v-model="video_link"
+      >
+      </vue-editor>
+
+      <div class="dflx">
+        <button class="alta" type="submit">Añadir</button>
+      </div>
+    </form>
+
+    <div class="tbl_fotos">
+      <p class="psin" v-if="added.fotos.length == 0">
+        Esta propiedad aun no tiene fotos añadidas.
+      </p>
+      <div class="bdy_foto" v-for="(item, index) in added.fotos" :key="index">
+        <img :src="url + 'otros-img/' + item.image" alt=""  v-if="item.tipov == 'imagen'" />
+        <div class="video-c" v-if="item.tipov == 'video'" v-html="item.video_link"> 
+        </div>
+        <div class="dflx">
+          <div class="box_ctr">
+            <p
+              @click="updatePortada(item.id, added.id)"
+              :class="{ active_option: item.portada == 'si' }"
+              class="option_btn2"
+            >
+              Portada
+            </p>
+          </div>
+          <div class="box_ctr">
+            <p @click="deleteFoto(item.id)" class="option_btn2">Borrar</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="viewModal" class="modal_view">
+      <div id="modal_edit">
+        <div class="body dflx">
+          <h3>otros actualizada</h3>
+          <img src="../../assets/default/add.png" alt="icono alerta" />
+        </div>
+
+        <div class="modal_edit_btns dflx">
+          <p @click="wait()" class="otro">Aceptar</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import { mapActions } from "vuex";
+import { url } from "../../global/index";
+import { VueEditor } from "vue2-editor";
+
+export default {
+  name: "EditOtr",
+  components: {
+    VueEditor,
+  },
+  data() {
+    return {
+      status: "",
+      message: "",
+      status2: "",
+      message2: "",
+      active: false,
+      url: url,
+      archivo: "No se eligió archivo",
+      statusimg: false,
+      //MODAL
+      file1: null,
+      viewModal: false,
+      search_value: "",
+      etiqueta: "",
+      tipov: "imagen",
+      video_link: "",
+      files: [],
+    };
+  },
+
+  async created() {
+    await this.getAllInfoClb("colaborador");
+  },
+  computed: {
+    added() {
+      return this.$store.getters["otros/getAdded"];
+    },
+    identity() {
+      return this.$store.getters["admin/getIdentity"];
+    },
+    colaboradores() {
+      let data = this.$store.getters["colaborador/data"];
+
+      if (!Array.isArray(data)) return [];
+      if (this.identity.role == "colaborador")
+        data = data.filter((item) => item.id == this.identity.sub);
+
+      if (this.search_value != "") {
+        let filt = data.filter((item) => {
+          const fullname = item.name + " " + item.lastname;
+          return this.includesItem(this.search_value, fullname);
+        });
+        data = filt;
+      }
+
+      return data;
+    },
+    data() {
+      return this.$store.getters["otros/data"];
+    },
+  },
+  methods: {
+    ...mapActions("otros", ["setAddedOtr"]),
+    ...mapActions("otros", ["getAllInfoClb"]),
+    ...mapActions("otros", ["getInfoByIdOtr"]),
+    ...mapActions("colaborador", ["getAllInfoClb"]),
+
+    updateAdded: async function () {
+      if (!this.added.id) return setTimeout(() => this.$router.go(), 200);
+      const result = await this.getInfoByIdOtr({
+        id: this.added.id,
+        option: "otros",
+      });
+
+      if (result.id) {
+        this.setAddedOtr(result);
+      }
+    },
+    addEtiqueta(value) {
+      if (value) {
+        let newarr = [];
+        for (const item of this.added.etiquetas) {
+          newarr.push(item);
+        }
+        newarr.push(value);
+        this.added.etiquetas = newarr;
+        this.etiqueta = "";
+      }
+    },
+    delEtiqueta(index) {
+      let newarr = [];
+      for (var i = 0; i < this.added.etiquetas.length; i++) {
+        if (i != index) newarr.push(this.added.etiquetas[i]);
+      }
+      this.added.etiquetas = newarr;
+    },
+
+    includesItem(search, name) {
+      name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      if (search == "") {
+        return true;
+      }
+      name = name.toLowerCase();
+      search = search.toLowerCase();
+      if (search == "") {
+        return false;
+      }
+      return name.includes(search);
+    },
+
+    wait: function () {
+      setTimeout(() => this.$router.go(), 200);
+    },
+    ...mapActions("otros", ["getInfoByIdOtr"]),
+    submit: async function (
+      id_colaborador,
+      titulo,
+      estatus,
+      renta,
+      tipo,
+      descripcion,
+      ubicacion,
+      precio,
+      superficie,
+      iframe,
+      detalles,
+      etiquetas,
+      act_precio,
+      leyenda,
+      tipov,
+      video_link
+    ) {
+      this.status = "";
+      this.message = "";
+
+      let result = await this.$store.dispatch("otros/editItemOtr", {
+        option: "otros",
+        item: {
+          id: this.added.id,
+          id_colaborador,
+          titulo,
+          estatus,
+          renta,
+          tipo,
+          descripcion,
+          ubicacion,
+          precio,
+          superficie,
+          iframe,
+          detalles,
+          etiquetas,
+          act_precio,
+          leyenda,
+        },
+      });
+
+      if (result.status == "error") {
+        this.status = "error";
+        this.message = result.message;
+      } else {
+        // success
+        this.showModal();
+      }
+    },
+    updatePortada: async function (id, id_otros) {
+      let result = await this.$store.dispatch("otros/editItemOtr", {
+        option: "otros/portada",
+        item: { id, id_otros },
+      });
+
+      if (result.status == "error") {
+        this.status = "error";
+        this.message = result.message;
+      } else {
+        // success
+        this.updateAdded();
+      }
+    },
+    deleteFoto: async function (id) {
+      this.status = "";
+      this.message = "";
+
+      let result = await this.$store.dispatch("otros/deleteItemOtr", {
+        option: "otros/foto",
+        id: id,
+      });
+
+      if (result.status == "error") {
+        this.message = result.message;
+        this.status = "error";
+        this.delStatus();
+      } else {
+        this.status = "";
+        this.message = "";
+        this.updateAdded();
+      }
+    },
+    submitFiles: async function (files, tipov, video_link) {
+      this.status = "";
+      this.message = "";
+
+      if (tipov == "imagen") {
+        if (files.length > 0) {
+          const id = this.added.id;
+
+          for (const image of files) {
+            //Creamos el formData
+            var data = new FormData();
+            //Añadimos la imagen seleccionada
+            data.append("image", image);
+            data.append("video_link", video_link);
+            data.append("tipov", tipov);
+            data.append("id", id);
+
+            //Añadimos el método PUT dentro del formData
+            // Como lo hacíamos desde un formulario simple _(no ajax)_
+            data.append("_method", "POST");
+
+            await this.$store.dispatch("otros/addItemOtr", {
+              option: "otros/foto",
+              item: data,
+            });
+          }
+
+          // success
+          this.files = [];
+          this.updateAdded();
+        } else {
+          this.status = "error";
+          this.message = "No has adjuntado ninguna foto.";
+          this.delStatus();
+        }
+      } else if (tipov == "video") {
+        // success
+        const id = this.added.id;
+        const image = "";
+        //Creamos el formData
+        /**/ var data = new FormData();
+        data.append("image", "");
+        data.append("video_link", video_link);
+        data.append("tipov", tipov);
+        data.append("id", id);
+        data.append("_method", "POST");
+
+        await this.$store.dispatch("otros/addItemOtr", {
+          option: "otros/foto",
+          item: data,
+        });
+
+        this.files = [];
+        this.updateAdded();
+      }
+    },
+
+    previewFiles() {
+      this.files = this.$refs.myFiles.files;
+    },
+    delStatus: function () {
+      setTimeout(() => this.delMsgs(), 2000);
+    },
+    delMsgs: function () {
+      this.status = "";
+      this.message = "";
+    },
+
+    showModal: function () {
+      this.viewModal = true;
+    },
+
+    toolbar: function () {
+      return [
+        ["bold", "italic", "underline", "strike"], // toggled buttons
+        ["blockquote", "code-block"],
+
+        [{ header: 1 }, { header: 2 }], // custom button values
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ script: "sub" }, { script: "super" }], // superscript/subscript
+        [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+        [{ direction: "rtl" }], // text direction
+
+        [{ size: ["small", false, "large", "huge"] }], // custom dropdown
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        // [ 'link','image' ,'video' ],          // add's image support
+        [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+        [{ font: [] }],
+        [{ align: [] }],
+
+        ["clean"], // remove formatting button
+      ];
+    },
+    toolbarvideo: function () {
+      return [["video"]];
+    },
+  },
+};
+</script>
+<style scoped>
+#EditOtr label {
+  color: var(--color-2);
+  font-weight: 700;
+  font-size: 0.7291666666666666vw;
+  margin-bottom: 0.3vw;
+}
+
+#EditOtr input,
+#EditOtr select {
+  height: 2.5vw;
+  width: 14.716666666666668vw;
+  border: 0.052083vw solid var(--color-2);
+  border-radius: 0vw 1.5vw 1.5vw 0vw;
+  color: var(--color-3);
+  font-size: 0.7291666666666666vw;
+  font-weight: 500;
+  padding-left: 1.09375vw;
+}
+:deep(.video-c > .ql-video){
+  width: 12.5vw;
+}
+</style>
